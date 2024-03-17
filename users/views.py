@@ -12,15 +12,41 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.contrib.auth import get_user_model
-import jwt, datetime
+import jwt, datetime, re
 
 User = get_user_model()
 
 class RegisterView(APIView):
     def post(self, request):
-        serializer = UserSerializer(data=request.data)
+        # Extracting name, email, and password from request data
+        name = request.data.get('name', '')
+        email = request.data.get('email', '')
+        password = request.data.get('password', '')
+
+        # Splitting name into first name, middle name, and last name
+        names = name.split()
+        first_name = names[0] if len(names) > 0 else ''
+        middle_name = names[1] if len(names) > 1 else ''
+        last_name = names[-1] if len(names) > 2 else ''
+
+        # Extracting username from email address
+        username = email.split('@')[0] if email else ''
+
+        # Creating data dictionary for serializer
+        serializer_data = {
+            'first_name': first_name,
+            'middle_name': middle_name,
+            'last_name': last_name,
+            'username': username,
+            'email': email,
+            'password': password,
+        }
+
+        # Serializing and saving user data
+        serializer = UserSerializer(data=serializer_data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
+
         return Response(serializer.data)
 
 class LoginView(APIView):
