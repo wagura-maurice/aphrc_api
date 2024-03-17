@@ -1,4 +1,4 @@
-# application/management/management/commands/createsuperuser.py
+# management/management/commands/createSuperUser.py
 
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
