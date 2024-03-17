@@ -1,0 +1,33 @@
+<!-- application/templates/profile_update_email.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Updated | {{ PLATFORM_NAME }}</title>
+    <style>
+        /* Tailwind CSS styles */
+        @import url('https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css');
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="p-6">
+                <h1 class="text-2xl font-semibold text-gray-800">Your Profile has been Updated!</h1>
+                <p class="text-gray-600 mt-2">Dear {{ USERNAME }},</p>
+                <p class="text-gray-600 mt-2">We're writing to inform you that your profile has been successfully updated.</p>
+                <p class="text-gray-600 mt-2">If you did not authorize this change, please contact our support team immediately.</p>
+                <div class="mt-4">
+                    <a href="{{ DOMAIN_URL }}" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded inline-block">
+                        Visit Our Website
+                    </a>
+                </div>
+                <p class="text-gray-700 text-base mt-6">Thank you,</p>
+                <p class="text-gray-600 mt-4">Best regards,</p>
+                <p class="text-gray-600"><a href="{{ DOMAIN_URL }}">{{ PLATFORM_NAME }}</a> Team</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
