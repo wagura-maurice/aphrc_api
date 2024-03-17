@@ -20,6 +20,8 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/user/', include('users.urls'))
+    # path('admin/', admin.site.urls),
+    path('api/user/', include('users.urls')),
+    path('api/post/', include('post_categories.urls')),
+    path('api/post/', include('post_catalogs.urls'))
 ]
