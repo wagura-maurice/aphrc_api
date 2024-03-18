@@ -24,6 +24,9 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 
+# This `urlpatterns` list in the Django URL configuration is responsible for routing URLs to views
+# within the application project. Each `path` function maps a URL pattern to a specific view or
+# includes another URL configuration.
 urlpatterns = [
     # path('admin/', admin.site.urls),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
