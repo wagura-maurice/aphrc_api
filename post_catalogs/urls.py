@@ -1,21 +1,20 @@
 # application/post_catalogs/urls.py
-
 from django.urls import path
 from . import views
 
 urlpatterns = [
     # List all catalogs
-    path('catalogs/', views.CatalogList.as_view(), name='post-catalogs.index'),  # GET request
+    path('', views.CatalogIndex.as_view(), name='catalog-index'),  # GET request
 
-    # Create a new Catalog
-    path('catalogs/', views.CreateCatalog.as_view(), name='post-catalogs.store'),  # POST request
+    # Create a new catalog
+    path('store/', views.StoreCatalog.as_view(), name='catalog-store'),  # POST request
 
-    # Show details of a specific Catalog
-    path('catalogs/<int:pk>/', views.ShowCatalog.as_view(), name='post-catalogs.show'),  # GET request
+    # Show details of a specific catalog
+    path('<int:pk>/show', views.ShowCatalog.as_view(), name='catalog-show'),  # GET request
 
-    # Update a specific Catalog
-    path('catalogs/<int:pk>/', views.UpdateCatalog.as_view(), name='post-catalogs.update'),  # PUT/PATCH request
+    # Update a specific catalog
+    path('<int:pk>/update/', views.UpdateCatalog.as_view(), name='catalog-update'),  # PUT/PATCH request
 
-    # Delete a specific Catalog
-    path('catalogs/<int:pk>/', views.DeleteCatalog.as_view(), name='post-catalogs.delete'),  # DELETE request
+    # Delete a specific catalog
+    path('<int:pk>/delete/', views.DeleteCatalog.as_view(), name='catalog-delete'),  # DELETE request
 ]

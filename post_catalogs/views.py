@@ -1,18 +1,19 @@
 # post_catalogs/views.py
-
+from .models import Catalog
+from django.db.models import Q
+from .serializers import CatalogSerializer
+from rest_framework.response import Response
+from rest_framework.exceptions import PermissionDenied
 from rest_framework import generics, permissions, filters
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.response import Response
-from django.db.models import Q
-from .models import Catalog
-from .serializers import CatalogSerializer
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 class CatalogPagination(PageNumberPagination):
     page_size = 10  # Define the number of catalogs per page
     page_size_query_param = 'page_size'
     max_page_size = 100
 
-class CatalogList(generics.ListCreateAPIView):
+class CatalogIndex(generics.ListCreateAPIView):
     queryset = Catalog.objects.all()
     serializer_class = CatalogSerializer
     pagination_class = CatalogPagination  # Apply pagination logic
@@ -41,14 +42,15 @@ class CatalogList(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
 
-class CreateCatalog(generics.CreateAPIView):
+class StoreCatalog(generics.CreateAPIView):
     queryset = Catalog.objects.all()
     serializer_class = CatalogSerializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
-
+        
 class ShowCatalog(generics.RetrieveAPIView):
     queryset = Catalog.objects.all()
     serializer_class = CatalogSerializer
@@ -57,6 +59,7 @@ class UpdateCatalog(generics.UpdateAPIView):
     queryset = Catalog.objects.all()
     serializer_class = CatalogSerializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
     def perform_update(self, serializer):
         catalog = self.get_object()
@@ -68,6 +71,7 @@ class DeleteCatalog(generics.DestroyAPIView):
     queryset = Catalog.objects.all()
     serializer_class = CatalogSerializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
     def perform_destroy(self, instance):
         if instance.owner != self.request.user:
