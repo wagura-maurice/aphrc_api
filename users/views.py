@@ -15,6 +15,8 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 User = get_user_model()
 
+# The `RegisterView` class in Python extracts user information from a POST request, processes the
+# data, creates a user serializer instance, validates the data, and saves the user information.
 class RegisterView(APIView):
     def post(self, request):
         name = request.data.get('name', '')
@@ -43,6 +45,8 @@ class RegisterView(APIView):
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+# The `LoginView` class handles user authentication by verifying the email and password provided in
+# the request data.
 class LoginView(APIView):
     def post(self, request):
         email = request.data.get('email')
@@ -60,6 +64,8 @@ class LoginView(APIView):
             'user': UserSerializer(user).data
         })
 
+# This Python class represents a view that retrieves and serializes user data using JWT
+# authentication.
 class UserView(APIView):
     authentication_classes = [JWTAuthentication]
 
@@ -68,6 +74,7 @@ class UserView(APIView):
         serializer = UserSerializer(user)
         return Response(serializer.data)
 
+# The `LogoutView` class defines a POST method that logs out a user and returns a success message.
 class LogoutView(APIView):
     authentication_classes = [JWTAuthentication]
 
@@ -78,6 +85,8 @@ class LogoutView(APIView):
         }
         return response
 
+# This class handles the logic for sending a password reset email to a user based on their email
+# address.
 class PasswordResetRequestView(APIView):
     def post(self, request):
         email = request.data.get('email')
@@ -99,6 +108,8 @@ class PasswordResetRequestView(APIView):
                 return Response({'message': 'Password reset email sent'})
         return Response({'error': 'User with this email does not exist'})
 
+# The `PasswordResetConfirmView` class handles the confirmation of password reset requests by
+# verifying the token and updating the user's password if the token is valid.
 class PasswordResetConfirmView(APIView):
     def post(self, request):
         uidb64 = request.data.get('uidb64')
@@ -117,6 +128,8 @@ class PasswordResetConfirmView(APIView):
                 pass
         return Response({'error': 'Invalid reset link'})
 
+# The `AccountVerificationView` class handles the verification of user accounts using a token sent via
+# a POST request.
 class AccountVerificationView(APIView):
     def post(self, request):
         uidb64 = request.data.get('uidb64')

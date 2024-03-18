@@ -5,6 +5,8 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
+# The CustomUserAdmin class customizes the User model admin interface by removing references to groups
+# and user permissions.
 class CustomUserAdmin(BaseUserAdmin):
     # Remove references to groups and user_permissions
     filter_horizontal = []
