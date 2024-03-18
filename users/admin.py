@@ -1,3 +1,14 @@
+# users/admin.py
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth import get_user_model
 
-# Register your models here.
+User = get_user_model()
+
+class CustomUserAdmin(BaseUserAdmin):
+    # Remove references to groups and user_permissions
+    filter_horizontal = []
+    list_filter = []
+
+# Register the User model with the custom admin class
+admin.site.register(User, CustomUserAdmin)

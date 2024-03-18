@@ -1,15 +1,20 @@
 # application/users/serializers.py
-
-from django.core.mail import send_mail
-from django.template.loader import render_to_string
+from .models import User
 from django.conf import settings
 from rest_framework import serializers
-from .models import User
+from django.core.mail import send_mail
+from django.contrib.auth import get_user_model
+from django.template.loader import render_to_string
+from django.utils.encoding import force_bytes
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.utils.http import urlsafe_base64_encode
+
+User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'password']
+        fields = ['id', 'username', 'email', 'first_name', 'middle_name', 'last_name', 'is_active', 'is_staff', 'is_superuser', 'password', 'last_login', 'created_at', 'updated_at']
         extra_kwargs = {
             'password': {'write_only': True}
         }
@@ -44,11 +49,14 @@ class UserSerializer(serializers.ModelSerializer):
         return instance
 
     def send_welcome_email(self, instance):
+        uidb64 = urlsafe_base64_encode(force_bytes(instance.pk))
+        token = PasswordResetTokenGenerator().make_token(instance)
+
         subject = 'Welcome!'
         message = render_to_string('welcome_email.html', {
             'USERNAME': instance.username,
-            'ACCOUNT_VERIFICATION_URL': '',
-            'DOMAIN_URL': settings.DOMAIN_URL,
+            'ACCOUNT_VERIFICATION_URL': f"{settings.SPA_URL}/verify-account/?uidb64={uidb64}&token={token}",
+            'SPA_URL': settings.SPA_URL,
             'PLATFORM_NAME': settings.PLATFORM_NAME
         })
         send_mail(subject, '', settings.DEFAULT_FROM_EMAIL, [instance.email], html_message=message)
@@ -57,7 +65,7 @@ class UserSerializer(serializers.ModelSerializer):
         subject = 'Profile Updated!'
         message = render_to_string('profile_update_email.html', {
             'USERNAME': instance.username,
-            'DOMAIN_URL': settings.DOMAIN_URL,
+            'SPA_URL': settings.SPA_URL,
             'PLATFORM_NAME': settings.PLATFORM_NAME
         })
         send_mail(subject, '', settings.DEFAULT_FROM_EMAIL, [instance.email], html_message=message)

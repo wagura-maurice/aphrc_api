@@ -1,38 +1,33 @@
 # application/users/views.py
-from rest_framework.views import APIView
-from rest_framework.response import Response
+from rest_framework import status
 from rest_framework.exceptions import AuthenticationFailed
-from .serializers import UserSerializer
-from .models import User
-from decouple import config
-from django.core.mail import send_mail
-from django.template.loader import render_to_string
-from django.conf import settings
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from django.utils.encoding import force_bytes, force_str
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from django.contrib.auth import get_user_model
-import jwt, datetime, re
+from django.conf import settings
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from rest_framework_simplejwt.tokens import RefreshToken
+from .models import User
+from .serializers import UserSerializer
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 User = get_user_model()
 
 class RegisterView(APIView):
     def post(self, request):
-        # Extracting name, email, and password from request data
         name = request.data.get('name', '')
         email = request.data.get('email', '')
         password = request.data.get('password', '')
 
-        # Splitting name into first name, middle name, and last name
         names = name.split()
         first_name = names[0] if len(names) > 0 else ''
         middle_name = names[1] if len(names) > 1 else ''
         last_name = names[-1] if len(names) > 2 else ''
 
-        # Extracting username from email address
         username = email.split('@')[0] if email else ''
 
-        # Creating data dictionary for serializer
         serializer_data = {
             'first_name': first_name,
             'middle_name': middle_name,
@@ -42,12 +37,11 @@ class RegisterView(APIView):
             'password': password,
         }
 
-        # Serializing and saving user data
         serializer = UserSerializer(data=serializer_data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class LoginView(APIView):
     def post(self, request):
@@ -56,52 +50,29 @@ class LoginView(APIView):
 
         user = User.objects.filter(email=email).first()
 
-        if user is None:
-            raise AuthenticationFailed('User not found!')
+        if user is None or not user.check_password(password):
+            raise AuthenticationFailed('Invalid email or password')
 
-        if not user.check_password(password):
-            raise AuthenticationFailed('Incorrect password!')
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+            'user': UserSerializer(user).data
+        })
 
-        payload = {
-            'id': user.id,
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60),
-            'iat': datetime.datetime.utcnow()
-        }
-
-        token = jwt.encode(payload, 'secret', algorithm='HS256')
-
-        response = Response()
-        response.set_cookie(key='jwt', value=token, httponly=True)
-        response.data = {
-            'jwt': token
-        }
-        return response
-    
 class UserView(APIView):
+    authentication_classes = [JWTAuthentication]
+
     def get(self, request):
-        token = request.COOKIES.get('jwt')
-
-        if not token:
-            raise AuthenticationFailed('Unauthenticated!')
-
-        try:
-            payload = jwt.decode(token, 'secret', algorithms=['HS256'])
-        except jwt.ExpiredSignatureError:
-            raise AuthenticationFailed('Unauthenticated!')
-
-        user = User.objects.filter(id=payload['id']).first()
+        user = request.user
         serializer = UserSerializer(user)
         return Response(serializer.data)
 
 class LogoutView(APIView):
-    def post(self, request):
-        token = request.COOKIES.get('jwt')
+    authentication_classes = [JWTAuthentication]
 
-        if not token:
-            raise AuthenticationFailed('Unauthenticated!')
-        
+    def post(self, request):
         response = Response()
-        response.delete_cookie('jwt')
         response.data = {
             'message': 'Logout successful'
         }
@@ -115,15 +86,12 @@ class PasswordResetRequestView(APIView):
             if user:
                 uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
                 token = PasswordResetTokenGenerator().make_token(user)
-                DOMAIN_URL = config('DOMAIN_URL')  # Access DOMAIN_URL variable
-                reset_link = f"{DOMAIN_URL}/api/password-reset-confirm/{uidb64}/{token}/"
 
-                # Send the password reset email
                 subject = 'Password Reset Request!'
                 message = render_to_string('password_reset_confirm_email.html', {
                     'USERNAME': user.username,
-                    'RESET_LINK': '',
-                    'DOMAIN_URL': settings.DOMAIN_URL,
+                    'RESET_LINK': f"{settings.SPA_URL}/password-reset-confirm/?uidb64={uidb64}&token={token}",
+                    'SPA_URL': settings.SPA_URL,
                     'PLATFORM_NAME': settings.PLATFORM_NAME
                 })
                 send_mail(subject, '', settings.DEFAULT_FROM_EMAIL, [email], html_message=message)
@@ -165,3 +133,4 @@ class AccountVerificationView(APIView):
             except (TypeError, ValueError, OverflowError, User.DoesNotExist):
                 pass
         return Response({'error': 'Invalid verification link'})
+    
