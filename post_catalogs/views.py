@@ -21,7 +21,6 @@ class CatalogIndex(generics.ListCreateAPIView):
     queryset = Catalog.objects.all()
     serializer_class = CatalogSerializer
     pagination_class = CatalogPagination  # Apply pagination logic
-    permission_classes = [permissions.IsAuthenticated]
     filter_backends = [filters.SearchFilter]
 
     def get_queryset(self):
