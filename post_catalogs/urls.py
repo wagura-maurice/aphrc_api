@@ -2,6 +2,8 @@
 from django.urls import path
 from . import views
 
+# This code snippet is defining URL patterns for handling different HTTP requests related to catalogs
+# in a Django application. Here's a breakdown of each URL pattern:
 urlpatterns = [
     # List all catalogs
     path('', views.CatalogIndex.as_view(), name='catalog-index'),  # GET request

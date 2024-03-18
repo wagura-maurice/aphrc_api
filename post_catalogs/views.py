@@ -8,11 +8,15 @@ from rest_framework import generics, permissions, filters
 from rest_framework.pagination import PageNumberPagination
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
+# The `CatalogPagination` class sets up pagination for catalogs with a page size of 10, allowing
+# customization up to a maximum of 100 catalogs per page.
 class CatalogPagination(PageNumberPagination):
     page_size = 10  # Define the number of catalogs per page
     page_size_query_param = 'page_size'
     max_page_size = 100
 
+# The `CatalogIndex` class is a Django REST framework view that handles listing and creating Catalog
+# objects with search, filtering, pagination, and permission logic.
 class CatalogIndex(generics.ListCreateAPIView):
     queryset = Catalog.objects.all()
     serializer_class = CatalogSerializer
@@ -42,6 +46,8 @@ class CatalogIndex(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
 
+# This class represents an API view for creating instances of the Catalog model with authentication
+# and ownership assigned to the requesting user.
 class StoreCatalog(generics.CreateAPIView):
     queryset = Catalog.objects.all()
     serializer_class = CatalogSerializer
@@ -51,10 +57,13 @@ class StoreCatalog(generics.CreateAPIView):
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
         
+# The `ShowCatalog` class is a Django REST framework API view that retrieves a single instance of the
+# `Catalog` model.
 class ShowCatalog(generics.RetrieveAPIView):
     queryset = Catalog.objects.all()
     serializer_class = CatalogSerializer
 
+# This class is an API view for updating a Catalog object with authentication and permission checks.
 class UpdateCatalog(generics.UpdateAPIView):
     queryset = Catalog.objects.all()
     serializer_class = CatalogSerializer
@@ -67,6 +76,8 @@ class UpdateCatalog(generics.UpdateAPIView):
             raise PermissionDenied("You do not have permission to perform this action.")
         serializer.save()
 
+# This class is a Django REST framework view for deleting a Catalog object, with permission and
+# authentication checks implemented.
 class DeleteCatalog(generics.DestroyAPIView):
     queryset = Catalog.objects.all()
     serializer_class = CatalogSerializer

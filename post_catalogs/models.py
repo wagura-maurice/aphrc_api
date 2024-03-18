@@ -5,6 +5,8 @@ from post_categories.models import Category
 
 User = get_user_model()
 
+# The `Catalog` class defines a model with fields for title, content, category, owner, timestamps, and
+# related names for category and owner relationships.
 class Catalog(models.Model):
     title = models.CharField(max_length=255)
     content = models.TextField()
