@@ -11,7 +11,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 # The `CatalogPagination` class sets up pagination for catalogs with a page size of 10, allowing
 # customization up to a maximum of 100 catalogs per page.
 class CatalogPagination(PageNumberPagination):
-    page_size = 10  # Define the number of catalogs per page
+    page_size = 6  # Define the number of catalogs per page
     page_size_query_param = 'page_size'
     max_page_size = 100
 
