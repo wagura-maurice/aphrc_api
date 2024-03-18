@@ -2,6 +2,8 @@
 from django.urls import path
 from . import views
 
+# This code snippet is defining URL patterns for handling different HTTP requests related to
+# categories in a Django application. Here's a breakdown of each URL pattern:
 urlpatterns = [
     # List all categories
     path('', views.CategoryIndex.as_view(), name='category-index'),  # GET request
