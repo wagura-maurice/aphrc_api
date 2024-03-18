@@ -1,13 +1,15 @@
 # management/management/commands/seedPostCategories.py
-
 from django.core.management.base import BaseCommand
 from post_categories.models import Category
 
-
+# This is a Python class named Command that likely inherits from BaseCommand.
 class Command(BaseCommand):
     help = 'Seeds the Category model with initial data'
 
     def handle(self, *args, **kwargs):
+        """
+        The function populates a database with predefined categories related to various topics.
+        """
         categories = [
             {"name": "Technology", "description": "Articles related to technology"},
             {"name": "Travel", "description": "Articles about travel destinations"},

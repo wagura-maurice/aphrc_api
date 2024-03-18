@@ -1,15 +1,22 @@
 # management/management/commands/migrateFresh.py
-
 from django.core.management.base import BaseCommand
 from django.core.management import call_command
 from django.db import connection, transaction
 from django.conf import settings
 from django.db.utils import OperationalError
 
+# This is a Python class named Command that likely inherits from BaseCommand.
 class Command(BaseCommand):
     help = 'Drops the database, recreates it, and runs migrate.'
 
     def handle(self, *args, **options):
+        """
+        The function drops and recreates a database specified in the Django settings and then runs the
+        migrate command.
+        :return: If an exception occurs during the attempt to drop the database, the function will
+        return early after rolling back the transaction. This is indicated by the `return` statement
+        within the `except` block.
+        """
         db_settings = settings.DATABASES['default']
         db_name = db_settings['NAME']
 
