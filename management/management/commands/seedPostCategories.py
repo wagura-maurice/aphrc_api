@@ -25,3 +25,4 @@ class Command(BaseCommand):
             Category.objects.get_or_create(**category_data)
 
         self.stdout.write(self.style.SUCCESS('Categories seeded successfully.'))
+        
